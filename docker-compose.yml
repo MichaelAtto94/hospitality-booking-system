@@ -1,0 +1,38 @@
+﻿services:
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hospitality_booking_db
+      POSTGRES_USER: hospitality_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - hospitality_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hospitality_user -d hospitality_booking_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [hospitality_network]
+
+  application:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://hospitality_user:${POSTGRES_PASSWORD}@database:5432/hospitality_booking_db?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      NEXT_PUBLIC_APP_NAME: ZedStay Hospitality
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks: [hospitality_network]
+
+volumes:
+  hospitality_postgres_data:
+
+networks:
+  hospitality_network:
+    driver: bridge

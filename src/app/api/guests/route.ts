@@ -1,0 +1,7 @@
+﻿import { NextResponse } from "next/server";
+import { z } from "zod";
+import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+const schema=z.object({firstName:z.string().trim().min(2).max(60),lastName:z.string().trim().min(2).max(60),phone:z.string().trim().min(7).max(20),email:z.union([z.string().trim().email(),z.literal("")]).optional(),nationality:z.string().trim().min(2).max(60),nrcOrPassport:z.string().trim().max(40).optional(),address:z.string().trim().max(200).optional()});
+export async function GET(){const u=await getCurrentUser();if(!u)return NextResponse.json({message:"Unauthorized"},{status:401});const guests=await prisma.guest.findMany({where:{propertyId:u.propertyId},include:{_count:{select:{bookings:true}}},orderBy:{createdAt:"desc"}});return NextResponse.json(guests)}
+export async function POST(r:Request){const u=await getCurrentUser();if(!u)return NextResponse.json({message:"Unauthorized"},{status:401});const p=schema.safeParse(await r.json());if(!p.success)return NextResponse.json({message:p.error.issues[0]?.message??"Invalid guest details"},{status:400});const d=p.data;const guest=await prisma.guest.create({data:{...d,propertyId:u.propertyId,email:d.email||null,nrcOrPassport:d.nrcOrPassport||null,address:d.address||null}});await prisma.auditLog.create({data:{action:"CREATE_GUEST",entity:"Guest",entityId:guest.id,userId:u.id}});return NextResponse.json(guest,{status:201})}

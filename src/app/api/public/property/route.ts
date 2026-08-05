@@ -1,0 +1,3 @@
+﻿import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+export async function GET(){const property=await prisma.property.findFirst({select:{id:true,name:true,type:true,address:true,town:true,province:true,phone:true,email:true,currency:true,roomTypes:{where:{rooms:{some:{status:{notIn:["MAINTENANCE","OUT_OF_SERVICE"]}}}},select:{id:true,name:true,description:true,capacity:true,basePrice:true,_count:{select:{rooms:true}}},orderBy:{basePrice:"asc"}}}});if(!property)return NextResponse.json({message:"Property is not configured"},{status:404});return NextResponse.json({...property,roomTypes:property.roomTypes.map(type=>({...type,basePrice:Number(type.basePrice)}))})}

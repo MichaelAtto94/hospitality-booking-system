@@ -1,0 +1,7 @@
+﻿import { compare,hash } from "bcryptjs";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { getCurrentUser,sessionCookie } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+const schema=z.object({currentPassword:z.string().min(1),newPassword:z.string().min(8).max(72).regex(/[A-Z]/,"Include an uppercase letter").regex(/[a-z]/,"Include a lowercase letter").regex(/[0-9]/,"Include a number")}).refine(data=>data.currentPassword!==data.newPassword,{message:"New password must be different",path:["newPassword"]});
+export async function POST(request:Request){const session=await getCurrentUser();if(!session)return NextResponse.json({message:"Unauthorized"},{status:401});const parsed=schema.safeParse(await request.json());if(!parsed.success)return NextResponse.json({message:parsed.error.issues[0]?.message??"Invalid password"},{status:400});const user=await prisma.user.findUnique({where:{id:session.id}});if(!user||!await compare(parsed.data.currentPassword,user.passwordHash))return NextResponse.json({message:"Current password is incorrect"},{status:401});const passwordHash=await hash(parsed.data.newPassword,12);await prisma.$transaction([prisma.user.update({where:{id:user.id},data:{passwordHash}}),prisma.auditLog.create({data:{action:"CHANGE_PASSWORD",entity:"User",entityId:user.id,userId:user.id}})]);const response=NextResponse.json({message:"Password changed. Please sign in again"});response.cookies.set(sessionCookie.name,"",{...sessionCookie.options,maxAge:0});return response}
