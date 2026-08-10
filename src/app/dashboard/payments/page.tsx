@@ -23,7 +23,7 @@ export default function PaymentsPage() {
     if (paymentResponse.ok) setPayments(await paymentResponse.json());
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { const timer = setTimeout(() => { void load(); }, 0); return () => clearTimeout(timer); }, [load]);
 
   const openBookings = useMemo(() => bookings.filter((booking) => {
     const paid = booking.payments.filter((p) => p.status === "COMPLETED").reduce((sum, p) => sum + Number(p.amount), 0);
@@ -74,3 +74,4 @@ export default function PaymentsPage() {
     </main>
   );
 }
+

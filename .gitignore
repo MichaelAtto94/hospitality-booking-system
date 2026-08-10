@@ -44,3 +44,10 @@ next-env.d.ts
 backups/*
 !backups/.gitkeep
 .env.docker
+
+# Generated readiness reports
+reports/*
+!reports/.gitkeep
+
+# Local safety copies from maintenance scripts
+maintenance-backups/
