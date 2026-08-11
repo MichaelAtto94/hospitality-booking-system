@@ -50,40 +50,42 @@ enum PaymentStatus {
 }
 
 model Property {
-  id        String     @id @default(cuid())
-  name      String
-  type      String     @default("LODGE")
-  address   String
-  town      String
-  province  String
-  phone     String
-  email     String?
-  tpin      String?
-  currency  String     @default("ZMW")
-  users     User[]
-  roomTypes RoomType[]
-  rooms     Room[]
-  bookings  Booking[]
-  expenses  Expense[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  guests    Guest[]
+  id            String         @id @default(cuid())
+  name          String
+  type          String         @default("LODGE")
+  address       String
+  town          String
+  province      String
+  phone         String
+  email         String?
+  tpin          String?
+  currency      String         @default("ZMW")
+  users         User[]
+  roomTypes     RoomType[]
+  rooms         Room[]
+  bookings      Booking[]
+  expenses      Expense[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  guests        Guest[]
+  notifications Notification[]
 }
 
 model User {
-  id           String     @id @default(cuid())
-  firstName    String
-  lastName     String
-  email        String     @unique
-  phone        String?
-  passwordHash String
-  role         UserRole   @default(RECEPTIONIST)
-  isActive     Boolean    @default(true)
-  propertyId   String
-  property     Property   @relation(fields: [propertyId], references: [id])
-  auditLogs    AuditLog[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id            String         @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String         @unique
+  phone         String?
+  passwordHash  String
+  role          UserRole       @default(RECEPTIONIST)
+  isActive      Boolean        @default(true)
+  propertyId    String
+  property      Property       @relation(fields: [propertyId], references: [id])
+  auditLogs     AuditLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  notifications Notification[]
 }
 
 model RoomType {
@@ -201,4 +203,42 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+  @@index([action, createdAt])
+  @@index([entity, createdAt])
+  @@index([userId, createdAt])
+}
+
+model PasswordResetCode {
+  id             String    @id @default(cuid())
+  email          String
+  codeHash       String
+  resetTokenHash String?
+  expiresAt      DateTime
+  attempts       Int       @default(0)
+  verifiedAt     DateTime?
+  usedAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([email, createdAt])
+  @@index([resetTokenHash])
+}
+
+model Notification {
+  id         String    @id @default(cuid())
+  type       String
+  priority   String    @default("NORMAL")
+  title      String
+  message    String
+  link       String?
+  dedupeKey  String
+  readAt     DateTime?
+  userId     String
+  propertyId String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, readAt, createdAt])
+  @@index([propertyId, createdAt])
 }

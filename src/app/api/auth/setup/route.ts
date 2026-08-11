@@ -13,8 +13,9 @@ const setupSchema = z.object({
   firstName: z.string().trim().min(2).max(60),
   lastName: z.string().trim().min(2).max(60),
   email: z.string().trim().toLowerCase().email().max(150),
-  password: z.string().min(8).max(72).regex(/[A-Z]/, "Include an uppercase letter").regex(/[0-9]/, "Include a number"),
-});
+  password: z.string().min(12, "Use at least 12 characters").max(72).regex(/[A-Z]/, "Include an uppercase letter").regex(/[a-z]/, "Include a lowercase letter").regex(/[0-9]/, "Include a number").regex(/[^A-Za-z0-9]/, "Include a special character"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, { message: "Passwords do not match", path: ["confirmPassword"] });
 
 export async function POST(request: Request) {
   try {
@@ -65,3 +66,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Unable to complete setup" }, { status: 500 });
   }
 }
+
