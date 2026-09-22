@@ -20,6 +20,7 @@ import {
   UserCog,
   Users,
   WalletCards,
+  CircleDollarSign,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -43,6 +44,7 @@ const links = [
   { href: "/dashboard/expenses", label: "Expenses", icon: WalletCards, roles: ["SUPER_ADMIN", "MANAGER", "ACCOUNTANT"], group: "FINANCE" },
   { href: "/dashboard/documents", label: "Documents", icon: FileText, roles: ["SUPER_ADMIN", "MANAGER", "RECEPTIONIST", "ACCOUNTANT"], group: "FINANCE" },
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3, roles: ["SUPER_ADMIN", "MANAGER", "ACCOUNTANT"], group: "FINANCE" },
+  { href: "/dashboard/reports/daily-close", label: "Daily closing", icon: CircleDollarSign, roles: ["SUPER_ADMIN", "MANAGER", "ACCOUNTANT"], group: "FINANCE" },
   { href: "/dashboard/analytics", label: "Live analytics", icon: Activity, roles: ["SUPER_ADMIN", "MANAGER", "ACCOUNTANT"], group: "FINANCE" },
   { href: "/dashboard/staff", label: "Staff", icon: UserCog, roles: management, group: "MANAGEMENT" },
   { href: "/dashboard/audit", label: "Audit trail", icon: History, roles: management, group: "MANAGEMENT" },
@@ -100,7 +102,7 @@ export function DashboardNav({ role }: { role: Role }) {
                 <p className="mb-2 px-3 text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-500">{group.label}</p>
                 <div className="space-y-1">
                   {visible.map(({ href, label, icon: Icon }) => {
-                    const active = href === "/dashboard" ? path === href : path.startsWith(href);
+                    const active = ["/dashboard", "/dashboard/reports"].includes(href) ? path === href : path.startsWith(href);
                     return (
                       <Link
                         key={href}

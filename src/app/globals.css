@@ -642,3 +642,8 @@ input[type="number"] {
   font-variant-numeric: tabular-nums;
 }
 /* HOSPITALITY MANROPE TYPOGRAPHY END */
+/* Financial closing uses intentionally dark hero panels in every theme. */
+.daily-close-page > div:first-child h1,
+.daily-close-page > div:first-child h2 {
+  color: #ffffff !important;
+}

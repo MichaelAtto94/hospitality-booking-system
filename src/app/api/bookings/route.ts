@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { differenceInCalendarDays } from "date-fns";
-import { z } from "zod";
-
+import { z } from "zod"; 
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
 
 const bookingSchema = z.object({
   guestId: z.string().min(1, "Select a guest"),

@@ -8,6 +8,7 @@ const expenseSchema = z.object({
   description: z.string().trim().min(3).max(200),
   amount: z.coerce.number().positive().max(10000000),
   expenseDate: z.coerce.date(),
+  paymentMethod: z.enum(["CASH", "CARD", "BANK_TRANSFER", "MTN_MOBILE_MONEY", "AIRTEL_MONEY", "ZAMTEL_KWACHA"]).default("CASH"),
 });
 
 export async function GET() {
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ message: parsed.error.issues[0]?.message ?? "Invalid expense" }, { status: 400 });
   const expense = await prisma.$transaction(async (tx) => {
     const created = await tx.expense.create({ data: { ...parsed.data, propertyId: user.propertyId } });
-    await tx.auditLog.create({ data: { action: "CREATE_EXPENSE", entity: "Expense", entityId: created.id, userId: user.id, details: { category: created.category, amount: Number(created.amount) } } });
+    await tx.auditLog.create({ data: { action: "CREATE_EXPENSE", entity: "Expense", entityId: created.id, userId: user.id, details: { category: created.category, amount: Number(created.amount), paymentMethod: created.paymentMethod } } });
     return created;
   });
   return NextResponse.json({ ...expense, amount: Number(expense.amount) }, { status: 201 });
