@@ -42,9 +42,9 @@ export async function getDailyFigures(propertyId: string, date: string) {
       where: { booking: { propertyId }, status: { in: ["COMPLETED", "REFUNDED"] }, paidAt: { gte: start, lt: end } },
       _sum: { amount: true },
     }),
-    prisma.payment.groupBy({
+    prisma.refund.groupBy({
       by: ["method"],
-      where: { booking: { propertyId }, status: "REFUNDED", refundedAt: { gte: start, lt: end } },
+      where: { payment: { booking: { propertyId } }, status: "APPROVED", approvedAt: { gte: start, lt: end } },
       _sum: { amount: true }, _count: true,
     }),
     prisma.expense.groupBy({

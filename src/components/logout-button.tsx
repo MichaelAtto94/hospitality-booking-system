@@ -10,5 +10,5 @@ export function LogoutButton() {
     router.replace("/login");
     router.refresh();
   }
-  return <button onClick={logout} className="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-100"><LogOut size={16} /> Log out</button>;
+  return <button onClick={logout} className="flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white"><LogOut size={16} /> Log out</button>;
 }

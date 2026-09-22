@@ -16,15 +16,23 @@ export async function GET() {
 
   const payments = await prisma.payment.findMany({
     where: { booking: { propertyId: user.propertyId } },
-    include: { booking: { include: { guest: true, room: true } } },
+    include: {
+      booking: { include: { guest: true, room: true } },
+      refunds: { where: { status: { in: ["PENDING", "APPROVED"] } }, select: { amount: true, status: true } },
+    },
     orderBy: { paidAt: "desc" },
   });
 
-  return NextResponse.json(payments.map((payment) => ({
-    ...payment,
-    amount: Number(payment.amount),
-    booking: { ...payment.booking, totalAmount: Number(payment.booking.totalAmount) },
-  })));
+  return NextResponse.json(payments.map((payment) => {
+    const committedRefunds = payment.refunds.reduce((sum, refund) => sum + Number(refund.amount), 0);
+    return {
+      ...payment,
+      amount: Number(payment.amount),
+      refunds: payment.refunds.map((refund) => ({ ...refund, amount: Number(refund.amount) })),
+      refundableAmount: Math.max(0, Number(payment.amount) - committedRefunds),
+      booking: { ...payment.booking, totalAmount: Number(payment.booking.totalAmount) },
+    };
+  }));
 }
 
 export async function POST(request: Request) {

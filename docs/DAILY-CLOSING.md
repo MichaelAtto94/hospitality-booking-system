@@ -20,6 +20,7 @@ The user must confirm their own account password before figures are revealed. Th
 
 - Gross receipts: cash + card + bank transfer + MTN + Airtel + Zamtel payments received during the selected business day.
 - Refunds: payments whose refund time falls within the selected business day.
+- Refunds are sourced from approved `Refund` records, so partial refunds and their actual approval dates are reported correctly.
 - Net collection: gross receipts - refunds - expenses.
 - Expected cash: cash receipts - cash refunds - cash-paid expenses.
 - Cash variance: physical cash counted - expected cash.
